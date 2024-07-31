@@ -21,7 +21,7 @@ const Employe = () => {
 
     useEffect(() => {
         fetchEmployees();
-    }, [dispatch]);
+    }, [fetchEmployees]);
 
     const fetchEmployees = async () => {
         dispatch(loadEmployeeStart());
