@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Grid, Typography, Button, TextField, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import BorderColorIcon from '@mui/icons-material/BorderColor';
@@ -19,11 +19,7 @@ const Employe = () => {
     const [selectedEmployee, setSelectedEmployee] = useState(null);
     const [isEditing, setIsEditing] = useState(false);
 
-    useEffect(() => {
-        fetchEmployees();
-    }, [fetchEmployees]);
-
-    const fetchEmployees = async () => {
+    const fetchEmployees = useCallback(async () => {
         dispatch(loadEmployeeStart());
         try {
             const employeData = await getEmploye();
@@ -31,17 +27,21 @@ const Employe = () => {
         } catch (error) {
             dispatch(loadEmployeeError(error));
         }
-    };
+    }, [dispatch]);
+
+    useEffect(() => {
+        fetchEmployees();
+    }, [fetchEmployees]);
 
     const handleAddEmploye = async (employedata, { resetForm }) => {
         dispatch(createEmployeeStart());
         try {
             await addEmploye(employedata);
-            dispatch(createEmployeeSuccess(employedata))
+            dispatch(createEmployeeSuccess(employedata));
             toast.success('Employee Added..!');
             fetchEmployees();
             resetForm();
-            setIsEditing(false); 
+            setIsEditing(false);
         } catch (error) {
             dispatch(createEmployeeError(error));
         }
@@ -51,12 +51,10 @@ const Employe = () => {
         dispatch(deleteEmployeeStart());
         try {
             await deleteEmploye(id);
-            dispatch(deleteEmployeeSuccess())
-            
+            dispatch(deleteEmployeeSuccess());
             toast.error('Employee deleted..!');
             const updatedEmployeData = employees.filter(employee => employee._id !== id);
             dispatch(loadEmployeeSuccess(updatedEmployeData));
-           
         } catch (error) {
             dispatch(deleteEmployeeError(error));
         }
@@ -69,11 +67,10 @@ const Employe = () => {
         try {
             await updateEmploye(selectedEmployee._id, values);
             toast.success('Employee updated..!');
-           
             fetchEmployees();
             setSelectedEmployee(null);
             setIsEditing(false);
-            resetForm(); 
+            resetForm();
         } catch (error) {
             dispatch(updateEmployeeError(error));
         }
@@ -112,9 +109,9 @@ const Employe = () => {
                         errors.email = 'Invalid email address';
                     }
                     if (!values.phone) {
-                        errors.phone = 'number is required';
+                        errors.phone = 'Number is required';
                     } else if (!/^\d{10}$/.test(values.phone)) {
-                        errors.phone = ' must be 10 digits';
+                        errors.phone = 'Must be 10 digits';
                     }
                     if (!values.city) {
                         errors.city = 'City is required';
@@ -212,20 +209,24 @@ const Employe = () => {
                                     key={index}
                                     sx={{
                                         '&:nth-of-type(odd)': { backgroundColor: '#f5f5f5' },
-                                        '&:nth-of-type(even)': { backgroundColor: '#e0e0e0' },
+                                        '&:nth-of-type(even)': { backgroundColor: '#e0e0e0' }
                                     }}
                                 >
-                                    <TableCell component="th" scope="row">
-                                        {employee.name}
-                                    </TableCell>
+                                    <TableCell>{employee.name}</TableCell>
                                     <TableCell>{employee.email}</TableCell>
                                     <TableCell>{employee.phone}</TableCell>
                                     <TableCell>{employee.city}</TableCell>
                                     <TableCell>
-                                        <BorderColorIcon onClick={() => handleEditClick(employee)} sx={{ cursor: 'pointer', color: 'green' }} />
+                                        <BorderColorIcon 
+                                            sx={{ cursor: 'pointer', color: 'green' }} 
+                                            onClick={() => handleEditClick(employee)}
+                                        />
                                     </TableCell>
                                     <TableCell>
-                                        <DeleteIcon onClick={() => handleDeleteEmploye(employee._id)} sx={{ cursor: 'pointer', color: 'red' }} />
+                                        <DeleteIcon 
+                                            sx={{ cursor: 'pointer', color: 'red' }} 
+                                            onClick={() => handleDeleteEmploye(employee._id)}
+                                        />
                                     </TableCell>
                                 </TableRow>
                             ))}
