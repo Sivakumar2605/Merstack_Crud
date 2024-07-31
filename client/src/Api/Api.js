@@ -1,10 +1,9 @@
 import axios from 'axios';
 
-<<<<<<< HEAD
+
 const BASE_URL =  process.env.REACT_APP_API_URL;
-=======
-const BASE_URL = 'process.env.REACT_APP_API_URL';
->>>>>>> 7e55604b15789f9ac08423cc39100986c4c057c2
+
+
 
 export const getEmploye = async () => {
     try {
